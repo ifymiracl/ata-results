@@ -1,0 +1,13 @@
+@extends('layouts.app')
+@section('title','Fees')
+@section('content')
+@include('partials.admintabs')
+<div class="grid g3"><div class="stat"><b>₦{{ number_format($collected) }}</b><span>Collected</span></div><div class="stat"><b>₦{{ number_format($outstanding) }}</b><span>Outstanding</span></div></div>
+<form method="post" action="{{ route('admin.fees.store', $school) }}" class="card mt">@csrf<h3>New fee</h3><div class="row">
+<div><label>Label</label><input name="label" placeholder="Tuition" required></div><div><label>Class (blank = all)</label><select name="class_name"><option value="">All classes</option>@foreach($classes as $c)<option>{{ $c->name }}</option>@endforeach</select></div>
+<div><label>Session</label><input name="session_label" value="{{ $school->current_session }}" required></div><div><label>Term</label><select name="term">@foreach(['First Term','Second Term','Third Term'] as $t)<option @selected($school->current_term===$t)>{{ $t }}</option>@endforeach</select></div><div><label>Amount (₦)</label><input name="amount" type="number" step="0.01" required></div><button class="btn primary">Create &amp; bill</button></div></form>
+<div class="card tablewrap"><h3>Fee items</h3><table>@foreach($structures as $f)<tr><td>{{ $f->label }}</td><td>{{ $f->class_name ?: 'All' }}</td><td>{{ $f->session_label }} {{ $f->term }}</td><td>₦{{ number_format($f->amount) }}</td><td><form method="post" action="{{ route('admin.fees.delete', [$school, $f->id]) }}">@csrf<button class="btn sm danger">Delete</button></form></td></tr>@endforeach</table></div>
+<div class="card tablewrap"><h3>{{ request('show')==='all' ? 'All balances' : 'Unpaid balances' }} <a class="btn sm" href="{{ route('admin.fees', ['school'=>$school,'show'=>request('show')==='all'?'':'all']) }}">{{ request('show')==='all' ? 'Only unpaid' : 'Show all' }}</a></h3><table><tr><th>Student</th><th>Fee</th><th>Paid / due</th><th>Record payment</th></tr>
+@foreach($owing as $o)<tr><td>{{ $o->student->full_name }}<br><span class="muted">{{ $o->student->class_name }}</span></td><td>{{ $o->structure?->label }}</td><td>₦{{ number_format($o->amount_paid) }} / ₦{{ number_format($o->amount_due) }} <span class="badge {{ $o->status==='paid'?'ok':($o->status==='partial'?'warn':'bad') }}">{{ $o->status }}</span></td>
+<td>@if($o->balance>0)<form method="post" action="{{ route('admin.fees.record', $school) }}" class="row">@csrf<input type="hidden" name="student_fee_id" value="{{ $o->id }}"><input name="amount" type="number" step="0.01" value="{{ $o->balance }}" style="max-width:110px"><select name="method" style="max-width:100px"><option>cash</option><option>transfer</option></select><button class="btn sm">Record</button></form>@endif</td></tr>@endforeach</table></div>
+@endsection

@@ -1,0 +1,1 @@
+@if($notices->count())<div class="card"><h3>Notices</h3>@foreach($notices as $n)<p><b>{{ $n->pinned ? '📌 ' : '' }}{{ $n->title }}</b> <span class="muted">{{ $n->created_at->format('j M') }}</span><br>{{ \Illuminate\Support\Str::limit($n->body, 160) }}</p>@endforeach<a href="{{ route('announcements', $school) }}">All notices</a></div>@endif
