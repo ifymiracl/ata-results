@@ -7,7 +7,8 @@ Multi-school result management, rebuilt from the WordPress plugin + theme on Lar
 ```bash
 composer install
 cp .env.example .env && php artisan key:generate
-touch database/database.sqlite
+# MySQL Workbench: run  CREATE DATABASE ata_results CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+# then set DB_USERNAME / DB_PASSWORD in .env  (see "Using MySQL" below)
 php artisan migrate --seed
 php artisan storage:link
 php artisan serve
@@ -39,3 +40,9 @@ Schools with their own slug (old slugs redirect), staff roles (admin / principal
 ## Notes
 - Staff / student / parent sessions live in the Laravel session (not WP users); the platform admin uses the standard `users` table (`is_platform_admin`).
 - Mail uses Laravel's mailer (`MAIL_MAILER=log` by default — configure SMTP to actually send PIN emails).
+
+## Using MySQL (MySQL Workbench)
+1. In Workbench, connect to your server and run: `CREATE DATABASE ata_results CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+2. In `.env` set `DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=ata_results`, `DB_USERNAME`, `DB_PASSWORD`.
+3. `php artisan migrate --seed` creates all tables; refresh the schema in Workbench to browse them.
+(To use SQLite instead: `DB_CONNECTION=sqlite` and `touch database/database.sqlite`.)
